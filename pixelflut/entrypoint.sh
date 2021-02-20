@@ -6,8 +6,8 @@ INRES="800x600"
 OUTRES="800x600"
 FPS="30"
 
-unclutter -idle 0 & \
-/pixelflut/pixelnuke & \
+unclutter -idle 0 &
+/pixelflut/pixelnuke &
 ffmpeg \
     -f x11grab \
     -i $DISPLAY \

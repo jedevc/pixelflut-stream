@@ -18,8 +18,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
 # Build pixel nuke
 COPY pixelflut/pixelnuke /pixelflut
 WORKDIR /pixelflut
-RUN sed -i -e "s/px_width = 1024/px_width = 1920/" -e "s/px_height = 1024/px_height = 1080/" -e "s/1024/1920/g" pixelnuke.c && \
-    sed -i -e 's/glfwCreateWindow(800, 600, "Pixelflut", NULL, NULL);/glfwCreateWindow(1920, 1080, "Pixelflut", NULL, NULL);/' -e "s/1024/1920/g" canvas.c;
 RUN make CC=clang-11 LD=lld-11
 
 EXPOSE 1337
