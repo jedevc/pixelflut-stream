@@ -1,11 +1,12 @@
 .PHONY: default all clean
 
-CC = gcc
-LD = ld
-CFLAGS = -Wall -pthread
-LDFLAGS = -pthread
+CC ?= gcc
+TARGET ?= pixelnuke
+
+override CFLAGS += -Wall -pthread
+override LDFLAGS += -pthread
+
 LIBS = -levent -levent_pthreads -lrt -lGL -lGLEW -lglfw
-TARGET = pixelnuke
 
 default: CFLAGS += -O2 -flto
 default: $(TARGET)
@@ -23,7 +24,7 @@ HEADERS = $(wildcard *.h)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) -fuse-ld=$(LD) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 
 clean:
 	-rm -f *.o $(TARGET)

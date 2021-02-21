@@ -1,12 +1,13 @@
+#include "config.h"
 #include "net.h"
 #include "canvas.h"
 
 #include <stdlib.h>
 #include <errno.h>
-#include <stdio.h> //sprintf
+#include <stdio.h>
 
-unsigned int px_width = 1024;
-unsigned int px_height = 1024;
+unsigned int px_width;
+unsigned int px_height;
 unsigned int px_pixelcount = 0;
 unsigned int px_clientcount = 0;
 
@@ -184,12 +185,16 @@ void px_on_window_close() {
 }
 
 int main(int argc, char **argv) {
+	config_init();
+	px_width = CONFIG_SCREEN_WIDTH;
+	px_height = CONFIG_SCREEN_HEIGHT;
+
 	canvas_setcb_key(&px_on_key);
 	canvas_setcb_resize(&px_on_resize);
 
 	canvas_start(1024, &px_on_window_close);
 
-	net_start(1337, &px_on_connect, &px_on_read, &px_on_close);
+	net_start(&px_on_connect, &px_on_read, &px_on_close);
 	return 0;
 }
 

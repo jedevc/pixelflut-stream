@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <err.h>
 
+#include "config.h"
 #include "net.h"
 
 // Lines longer than this are considered an error.
@@ -165,8 +166,7 @@ static void on_accept(evutil_socket_t listener, short event, void *arg) {
 
 // Public functions
 
-void net_start(int port, net_on_connect on_connect, net_on_read on_read,
-		net_on_close on_close) {
+void net_start(net_on_connect on_connect, net_on_read on_read, net_on_close on_close) {
 	evutil_socket_t listener;
 	struct sockaddr_in sin;
 	struct event *listener_event;
@@ -189,7 +189,7 @@ void net_start(int port, net_on_connect on_connect, net_on_read on_read,
 
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = INADDR_ANY;
-	sin.sin_port = htons(1337);
+	sin.sin_port = htons(CONFIG_PORT);
 	listener = socket(AF_INET, SOCK_STREAM, 0);
 	evutil_make_socket_nonblocking(listener);
 	evutil_make_listen_socket_reuseable(listener);
