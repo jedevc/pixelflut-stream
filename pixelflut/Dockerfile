@@ -16,7 +16,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
     wait-for-it
 
 # Build pixel nuke
-COPY pixelflut/pixelnuke /pixelflut
+COPY pixelflut/ /pixelflut
 WORKDIR /pixelflut
 RUN make CC=clang-11 LD=lld-11
 
