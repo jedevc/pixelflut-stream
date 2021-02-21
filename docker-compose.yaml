@@ -5,6 +5,9 @@ services:
     build: pixelflut/
     ports:
       - "1337:1337"
+    environment:
+      SCREEN_WIDTH: 800
+      SCREEN_HEIGHT: 600
     depends_on:
       - stream
     networks:

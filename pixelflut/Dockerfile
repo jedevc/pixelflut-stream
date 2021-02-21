@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:20.10
 
 # Install dependencies
 RUN apt-get -y update && \
@@ -16,11 +16,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
     wait-for-it
 
 # Build pixel nuke
-COPY pixelflut/ /pixelflut
+COPY pixelnuke/ /pixelflut
 WORKDIR /pixelflut
-RUN make CC=clang-11 LD=lld-11
+RUN make CC=clang-11 LDFLAGS=-fuse-ld=lld
 
-EXPOSE 1337
+# Copy helper scripts
 COPY ./entrypoint.sh /entrypoint.sh
-CMD wait-for-it stream:1935 -- xvfb-run -n 99 --server-args="-screen 0 1920x1080x24" /entrypoint.sh
+COPY ./runner.sh /runner.sh
+
+CMD wait-for-it stream:1935 -- /entrypoint.sh
 

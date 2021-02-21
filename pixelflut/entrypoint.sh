@@ -2,27 +2,13 @@
 
 set -e
 
-INRES="800x600"
-OUTRES="800x600"
-FPS="30"
+if [ -z "$SCREEN_WIDTH" ]; then
+    SCREEN_WIDTH=800
+fi
+if [ -z "$SCREEN_HEIGHT" ]; then
+    SCREEN_HEIGHT=600
+fi
+export SCREEN_WIDTH SCREEN_HEIGHT
 
-unclutter -idle 0 &
-/pixelflut/pixelnuke &
-ffmpeg \
-    -f x11grab \
-    -i $DISPLAY \
-    -video_size $INRES \
-    -s $INRES \
-    -r $FPS \
-    -f flv \
-    -s $OUTRES \
-    -vcodec libx264 \
-    -keyint_min $FPS \
-    -g $FPS \
-    -vprofile baseline \
-    -pix_fmt yuv420p \
-    -preset ultrafast -tune zerolatency \
-    -threads 0 \
-    -strict experimental \
-    rtmp://stream/show/stream
+xvfb-run -n 99 --server-args="-screen 0 ${SCREEN_WIDTH}x${SCREEN_HEIGHT}x24" /runner.sh
 
