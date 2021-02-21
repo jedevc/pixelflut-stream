@@ -28,7 +28,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
     wait-for-it
 
 # Copy files
-COPY --from=0 /pixelflut/pixelnuke /pixelflut/pixelnuke
+COPY --from=0 /pixelflut/pixelnuke /pixelnuke
 COPY ./entrypoint.sh /entrypoint.sh
 COPY ./runner.sh /runner.sh
 

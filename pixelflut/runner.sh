@@ -7,7 +7,7 @@ OUTRES="${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
 FPS="30"
 
 unclutter -idle 0 &
-/pixelflut/pixelnuke &
+/pixelnuke &
 ffmpeg \
     -f x11grab \
     -i $DISPLAY \
