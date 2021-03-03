@@ -32,5 +32,7 @@ COPY --from=0 /pixelflut/pixelnuke /pixelnuke
 COPY ./entrypoint.sh /entrypoint.sh
 COPY ./runner.sh /runner.sh
 
+EXPOSE 1337
+
 CMD wait-for-it stream:1935 -- /entrypoint.sh
 

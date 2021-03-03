@@ -1,10 +1,39 @@
 version: '3'
 
 services:
+  traefik:
+    image: traefik:v2.2
+    restart: always
+    command:
+      # - "--log.level=DEBUG"
+      # - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.pixelflut.address=:1337"
+
+      # - "--certificatesResolvers.resolver.acme.email=$ACME_EMAIL"
+      # - "--certificatesResolvers.resolver.acme.storage=/acme/acme.json"
+      # - "--certificatesresolvers.resolver.acme.httpchallenge=true"
+      # - "--certificatesresolvers.resolver.acme.httpchallenge.entrypoint=web"
+      # - "--certificatesResolvers.resolver.acme.caServer=$ACME_API"
+    networks:
+      frontend:
+    ports:
+      - "80:80"
+      - "443:443"
+      - "1337:1337"
+    volumes:
+      - "acme:/acme"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
   pixelflut:
     build: pixelflut/
-    ports:
-      - "1337:1337"
     environment:
       SCREEN_WIDTH: 800
       SCREEN_HEIGHT: 600
@@ -13,15 +42,29 @@ services:
     networks:
       frontend:
         ipv4_address: 10.0.1.1
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.tcp.routers.stream-tcp.entrypoints=pixelflut"
+      - "traefik.tcp.routers.stream-tcp.rule=HostSNI(`*`)"
+      # - "traefik.tcp.routers.stream-tcp.rule=HostSNI(`$DOMAIN`)"
 
   stream:
     build: stream/
-    ports:
-      - "8000:80"
-      - "1935:1935"
     networks:
       frontend:
         ipv4_address: 10.0.2.1
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.stream-http.entrypoints=web"
+      - "traefik.http.routers.stream-http.rule=Host(`$DOMAIN`)"
+      - "traefik.http.routers.stream-http.middlewares=redirect-to-https"
+
+      - "traefik.http.routers.stream.entrypoints=websecure"
+      - "traefik.http.routers.stream.rule=Host(`$DOMAIN`)"
+      - "traefik.http.routers.stream.tls=true"
+      - "traefik.http.routers.stream.tls.certresolver=resolver"
 
 networks:
   frontend:
@@ -29,4 +72,7 @@ networks:
       driver: default
       config:
         - subnet: 10.0.0.1/16
+
+volumes:
+  acme:
 
