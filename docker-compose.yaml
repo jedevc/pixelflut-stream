@@ -2,32 +2,19 @@ version: '3'
 
 services:
   traefik:
-    image: traefik:v2.4
-    restart: always
+    image: caddy:2
+    restart: unless-stopped
     environment:
-      - "DOMAIN=${DOMAIN}"
-
-      # - "TRAEFIK_API_INSECURE=true"
-      # - "TRAEFIK_API=true"
-      # - "TRAEFIK_API_DASHBOARD=true"
-
-      - "TRAEFIK_PROVIDERS_DOCKER=true"
-      - "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=true"
-      - "TRAEFIK_PROVIDERS_FILE_DIRECTORY=/traefik/config"
-
-      - "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80"
-      - "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443"
-      - "TRAEFIK_ENTRYPOINTS_PIXELFLUT_ADDRESS=:1337"
+      - "DOMAIN=${DOMAIN:-localhost}"
     networks:
       frontend:
     ports:
-      # - "8080:8080"
       - "80:80"
       - "443:443"
-      - "1337:1337"
     volumes:
-      - "./traefik/${SETUP:-production}:/traefik"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./Caddyfile:/etc/caddy/Caddyfile"
+      - "caddy_data:/data"
+      - "caddy_config:/config"
 
   pixelflut:
     build: pixelflut/
@@ -36,31 +23,17 @@ services:
       SCREEN_HEIGHT: 600
     depends_on:
       - stream
+    ports:
+      - "1337:1337"
     networks:
       frontend:
         ipv4_address: 10.0.1.1
-    labels:
-      - "traefik.enable=true"
-
-      - "traefik.tcp.routers.pixelflut-tcp.entrypoints=pixelflut"
-      - "traefik.tcp.routers.pixelflut-tcp.rule=HostSNI(`*`)"
-      # - "traefik.tcp.routers.stream-tcp.rule=HostSNI(`${DOMAIN}`)"
 
   stream:
     build: stream/
     networks:
       frontend:
         ipv4_address: 10.0.2.1
-    labels:
-      - "traefik.enable=true"
-
-      - "traefik.http.routers.stream-http.entrypoints=web"
-      - "traefik.http.routers.stream-http.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.stream-http.middlewares=redirect-to-https@file"
-
-      - "traefik.http.routers.stream-https.entrypoints=websecure"
-      - "traefik.http.routers.stream-https.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.stream-https.tls=true"
 
 networks:
   frontend:
@@ -68,4 +41,8 @@ networks:
       driver: default
       config:
         - subnet: 10.0.0.1/16
+
+volumes:
+  caddy_data:
+  caddy_config:
 
