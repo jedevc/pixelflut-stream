@@ -1,0 +1,7 @@
+baseURL = "http://example.org/"
+languageCode = "en-gb"
+title = "Pixelflut"
+
+theme = "book"
+
+BookMenuBundle = "/menu"
