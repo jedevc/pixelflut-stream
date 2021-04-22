@@ -1,7 +1,0 @@
-tls:
-  stores:
-    default:
-      defaultCertificate:
-        certFile: /traefik/certs/{{ env "DOMAIN" }}.pem
-        keyFile: /traefik/certs/{{ env "DOMAIN" }}-key.pem
-
