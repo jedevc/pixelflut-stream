@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  caddy:
+    environment:
+      STREAM: "${STREAM_URL}"
+    volumes:
+      - "./external.Caddyfile:/etc/caddy/Caddyfile"
+
+  pixelflut:
+    environment:
+      RTMP: "${RTMP_URL}"
+

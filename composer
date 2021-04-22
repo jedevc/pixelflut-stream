@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+if [[ -z $1 ]]; then
+    echo "usage: $0 <config> docker-compose command"
+    exit 1
+fi
+
+docker-compose -f "docker-compose.yaml" -f "docker-compose.$1.yaml" ${@:2}

@@ -24,8 +24,7 @@ RUN apt-get -y update && \
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
     libevent-2.1-7 libevent-pthreads-2.1-7 libglew2.1 libglfw3 \
     xvfb unclutter \
-    ffmpeg \
-    wait-for-it
+    ffmpeg
 
 # Copy files
 COPY --from=0 /pixelflut/pixelnuke /pixelnuke
@@ -34,5 +33,5 @@ COPY ./runner.sh /runner.sh
 
 EXPOSE 1337
 
-CMD wait-for-it stream:1935 -- /entrypoint.sh
+CMD /entrypoint.sh
 

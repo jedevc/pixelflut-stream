@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  caddy:
+    volumes:
+      - "./local.Caddyfile:/etc/caddy/Caddyfile"
+
+  stream:
+    build: stream/
+    restart: unless-stopped
+    networks:
+      frontend:
+
+  pixelflut:
+    depends_on:
+      - stream
+    environment:
+      RTMP: "rtmp://stream/show/stream"
+

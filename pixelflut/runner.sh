@@ -24,5 +24,5 @@ ffmpeg \
     -preset ultrafast -tune zerolatency \
     -threads 0 \
     -strict experimental \
-    rtmp://stream/show/stream
+    "$RTMP"
 

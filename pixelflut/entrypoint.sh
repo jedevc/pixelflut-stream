@@ -10,5 +10,5 @@ if [ -z "$SCREEN_HEIGHT" ]; then
 fi
 export SCREEN_WIDTH SCREEN_HEIGHT
 
-xvfb-run -n 99 --server-args="-screen 0 ${SCREEN_WIDTH}x${SCREEN_HEIGHT}x24" /runner.sh
+xvfb-run -a -n 99 --server-args="-screen 0 ${SCREEN_WIDTH}x${SCREEN_HEIGHT}x24" /runner.sh
 

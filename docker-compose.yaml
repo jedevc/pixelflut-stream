@@ -1,39 +1,37 @@
 version: '3'
 
 services:
-  traefik:
+  caddy:
     image: caddy:2
     restart: unless-stopped
     environment:
-      - "DOMAIN=${DOMAIN:-localhost}"
+      DOMAIN: "${DOMAIN:-localhost}"
     networks:
       frontend:
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - "./Caddyfile:/etc/caddy/Caddyfile"
       - "caddy_data:/data"
       - "caddy_config:/config"
 
+  site:
+    build: site
+    restart: unless-stopped
+    networks:
+      frontend:
+
   pixelflut:
+    restart: unless-stopped
     build: pixelflut/
     environment:
-      SCREEN_WIDTH: 800
-      SCREEN_HEIGHT: 600
-    depends_on:
-      - stream
+      SCREEN_WIDTH: "800"
+      SCREEN_HEIGHT: "600"
     ports:
       - "1337:1337"
     networks:
       frontend:
-        ipv4_address: 10.0.1.1
-
-  stream:
-    build: stream/
-    networks:
-      frontend:
-        ipv4_address: 10.0.2.1
+        ipv4_address: 10.0.10.1
 
 networks:
   frontend:

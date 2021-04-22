@@ -1,0 +1,8 @@
+{$DOMAIN:localhost} {
+    reverse_proxy http://site
+}
+
+stream.{$DOMAIN:localhost} {
+    redir {$STREAM}
+}
+

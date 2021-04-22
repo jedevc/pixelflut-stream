@@ -1,8 +1,0 @@
-{$DOMAIN:localhost} {
-    respond "Hello, world!"
-}
-
-stream.{$DOMAIN:localhost} {
-    reverse_proxy http://stream:80
-}
-
