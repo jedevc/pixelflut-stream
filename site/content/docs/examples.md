@@ -13,28 +13,47 @@ This should color a single pixel at `(100, 100)` pure red - it'll be difficult
 to spot, especially if everyone else is running the same example - make sure to
 mix up the co-ordinates and colours to experiment!
 
-{{< tabs "square" >}}
+{{< tabs "pixel" >}}
 {{< tab "Python" >}}
 ```python3
 # pixel.py
+import socket
+
 if __name__ == "__main__":
+    ADDRESS = ('pixelflut.jedevc.com', 1337)
+    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    SOCKET.connect(ADDRESS)
+    SOCKET = SOCKET.makefile('rw')
+
     x = 100
     y = 100
     color = "ff0000"
-    print(f"PX {x} {y} {color}")
+    print(f"PX {x} {y} {color}", file=SOCKET)
 ```
 
-To draw the square, run the program and pipe it into netcat:
+To draw the square, just run the program:
 
-    $ python3 pixel.py | nc pixelflut.jedevc.com 1337
+    $ python3 pixel.py
 {{< /tab >}}
 {{< /tabs >}}
 
-Note how we interact with the server - whatever language we use, we can just
-print out to the console, and then use netcat (available as `nc`, `netcat` and
-`ncat` with slightly different behaviours). This means that rendering is
-simple, and easy, and makes our pipeline composable in case we want to do some
-funky stuff later on.
+Before continuing, make sure this works! If you have problems, try removing the
+`file=SOCKET` part to print to stdout so it's easier to see what's going on and
+what commands are being sent.
+
+{{< hint info >}}
+Alternatively, instead of connecting using your language's TCP socket
+connection primitives, and you're on Linux you can take the simpler option of
+just directly printing out your commands directly to the console.
+
+Then, you can run it like so, using a pipe:
+
+    $ python3 pixel.py | nc pixelflut.jedevc.com 1337
+
+If you're on Linux, you should definitely give this technique a go - it's much
+more flexible, and also works for whatever programming language you want to
+use, without needing to learn their socket APIs!
+{{< /hint >}}
 
 ## Square
 
@@ -44,17 +63,24 @@ This should render a single square of size 100 by 100 at the co-ordinates `(50, 
 {{< tab "Python" >}}
 ```python3
 # square.py
+import socket
+
 if __name__ == "__main__":
+    ADDRESS = ('pixelflut.jedevc.com', 1337)
+    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    SOCKET.connect(ADDRESS)
+    SOCKET = SOCKET.makefile('rw')
+
     x = 50
     y = 50
     for i in range(100):
         for j in range(100):
-            print(f"PX {x + i} {y + j} ff0000")
+            print(f"PX {x + i} {y + j} ff0000", file=SOCKET)
 ```
 
-To draw the square, run the program and pipe it into netcat:
+To draw the square, run the program:
 
-    $ python3 square.py | nc pixelflut.jedevc.com 1337
+    $ python3 square.py
 {{< /tab >}}
 {{< /tabs >}}
 
@@ -72,7 +98,9 @@ library.
 
 ```python3
 # image.py
+import socket
 import sys
+
 from PIL import Image
 
 def paste_image(im, x, y):
@@ -87,16 +115,21 @@ def paste_image(im, x, y):
             except ValueError:
                 r, g, b = im.getpixel((i, j))
                 color = f"{r:02x}{g:02x}{b:02x}"
-            print(f'PX {x + i} {y + j} {color}')
+            print(f'PX {x + i} {y + j} {color}', file=SOCKET)
 
 if __name__ == "__main__":
+    ADDRESS = ('pixelflut.jedevc.com', 1337)
+    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    SOCKET.connect(ADDRESS)
+    SOCKET = SOCKET.makefile('rw')
+
     image = Image.open(sys.argv[1])
     paste_image(image, 0, 0)
 ```
 
-To draw the image, run the program with an image file and pipe it into netcat:
+To draw the image, run the program with an image file:
 
-    $ python3 image.py image.png | nc pixelflut.jedevc.com 1337
+    $ python3 image.py image.png
 {{< /tab >}}
 {{< /tabs >}}
 
@@ -109,6 +142,7 @@ again. This example combines both of them!
 {{< tab "Python" >}}
 ```python3
 # clock.py
+import socket
 import time
 from PIL import Image, ImageDraw
 
@@ -137,6 +171,11 @@ def paste_text(text):
     paste_image(bgim, 0, 0)
 
 if __name__ == "__main__":
+    ADDRESS = ('pixelflut.jedevc.com', 1337)
+    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    SOCKET.connect(ADDRESS)
+    SOCKET = SOCKET.makefile('rw')
+
     while True:
         text = time.strftime("%H:%M:%S")
         paste_text(text)
@@ -148,7 +187,7 @@ if __name__ == "__main__":
 To continuously render the clock in the top-left corner of the screen, run the
 program and pipe it into netcat:
 
-    $ python3 clock.py | nc pixelflut.jedevc.com 1337
+    $ python3 clock.py
 {{< /tab >}}
 {{< /tabs >}}
 
@@ -163,6 +202,7 @@ by rendering the tail as well, drawing a worm that makes it way randomly through
 # worm.py
 import colorsys
 import random
+import socket
 import time
 
 # partition the available space into unit squares
@@ -175,9 +215,14 @@ TAIL_MAX = 5
 def rect(x, y, width, height, color):
     for i in range(width):
         for j in range(height):
-            print(f"PX {x + i} {y + j} {color}")
+            print(f"PX {x + i} {y + j} {color}", file=SOCKET)
 
 if __name__ == "__main__":
+    ADDRESS = ('pixelflut.jedevc.com', 1337)
+    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    SOCKET.connect(ADDRESS)
+    SOCKET = SOCKET.makefile('rw')
+
     # get a starting position
     x = random.randint(0, WIDTH - 1)
     y = random.randint(0, HEIGHT - 1)
@@ -221,8 +266,8 @@ if __name__ == "__main__":
 ```
 
 To continuously render the worm and have it crawl across the screen, run the
-program and pipe it into netcat:
+program:
 
-    $ python3 worm.py | nc pixelflut.jedevc.com 1337
+    $ python3 worm.py
 {{< /tab >}}
 {{< /tabs >}}

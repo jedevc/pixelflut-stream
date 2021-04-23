@@ -4,7 +4,7 @@ weight: 30
 
 # Tips and Tricks
 
-## Fading in renders
+## Fading in renders with pipes
 
 Instead of rendering from top-to-bottom, or left-to-right, you can play with
 the order that things are rendered in.
@@ -17,10 +17,11 @@ For example, with the [square example]({{< relref "/docs/examples" >}}#square):
 
     $ python3 square.py | shuf | nc pixelflut.jedevc.com 1337
 
-Note that this won't work with scripts that continuously render, since `shuf`
-reads the whole input before outputing anything. If you want to fade in with
-continuous rendering, then you need to randomize the order that you write
-commands to the server in yourself.
+Note that this won't work with scripts that directly use the TCP socket
+connection library in their programming language, since `shuf` only works this
+way with pipes. If you want to fade in while using a more complex script, then
+you need to randomize the order that you write commands to the server in
+yourself.
 
 ## Capture an image from the stream
 
