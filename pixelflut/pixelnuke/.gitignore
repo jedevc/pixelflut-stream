@@ -1,6 +1,2 @@
-pixelnuke/.*
-pixelnuke/*.o
-pixelnuke/pixelnuke
-
-pixelwar/.*
-pixelwar/target
+*.o
+pixelnuke
