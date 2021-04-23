@@ -141,6 +141,9 @@ To draw the image, run the program with an image file:
 Rendering text is kind of useful, and so is rendering something over and over
 again. This example combines both of them!
 
+As a useful helper, we need to get the size of the canvas, so we also do that
+at the beginning.
+
 {{< tabs "clock" >}}
 {{< tab "Python" >}}
 ```python3
@@ -153,8 +156,22 @@ from image import paste_image
 
 BORDER = 10
 
+def paste_image(im, x, y):
+    for i in range(im.width):
+        for j in range(im.height):
+            try:
+                r, g, b, a = im.getpixel((i, j))
+                if a == 0:
+                    # don't waste time rendering fully transparent pixels
+                    continue
+                color = f"{r:02x}{g:02x}{b:02x}{a:02x}"
+            except ValueError:
+                r, g, b = im.getpixel((i, j))
+                color = f"{r:02x}{g:02x}{b:02x}"
+            print(f'PX {x + i} {y + j} {color}', file=SOCKET)
+
 def paste_text(text):
-    im = Image.new("RGBA", (800, 600))
+    im = Image.new("RGBA", (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(im)
     draw.text((BORDER, BORDER), text, fill="black")
 
@@ -165,7 +182,7 @@ def paste_text(text):
         bounds[2] + BORDER,
         bounds[3] + BORDER
     ]
-    bgim = Image.new("RGBA", (800, 600))
+    bgim = Image.new("RGBA", (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(bgim)
     draw.rectangle(bounds, fill="white")
     bgim.paste(im, mask=im)
@@ -175,15 +192,18 @@ def paste_text(text):
 
 if __name__ == "__main__":
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.connect(('pixelflut.jedevc.com', 1337))
+    SOCKET.connect(('localhost', 1337))
     SOCKET = SOCKET.makefile('rw')
+
+    print("SIZE", file=SOCKET, flush=True)
+    WIDTH, HEIGHT = [int(s) for s in SOCKET.readline().split()[1:]]
 
     while True:
         text = time.strftime("%H:%M:%S")
         paste_text(text)
 
         # time delay!
-        time.sleep(1)
+        time.sleep(0.5)
 
     SOCKET.close()
 ```
@@ -209,11 +229,6 @@ import random
 import socket
 import time
 
-# partition the available space into unit squares
-PXWIDTH, PXHEIGHT = 800, 600
-SQUARE = 20
-WIDTH, HEIGHT = PXWIDTH // SQUARE, PXHEIGHT // SQUARE
-
 TAIL_MAX = 5
 
 def rect(x, y, width, height, color):
@@ -225,6 +240,12 @@ if __name__ == "__main__":
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     SOCKET.connect(('pixelflut.jedevc.com', 1337))
     SOCKET = SOCKET.makefile('rw')
+
+    # partition the available space into unit squares
+    print("SIZE", file=SOCKET, flush=True)
+    PXWIDTH, PXHEIGHT = [int(s) for s in SOCKET.readline().split()[1:]]
+    SQUARE = 20
+    WIDTH, HEIGHT = PXWIDTH // SQUARE, PXHEIGHT // SQUARE
 
     # get a starting position
     x = random.randint(0, WIDTH - 1)
