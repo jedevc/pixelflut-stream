@@ -20,15 +20,16 @@ mix up the co-ordinates and colours to experiment!
 import socket
 
 if __name__ == "__main__":
-    ADDRESS = ('pixelflut.jedevc.com', 1337)
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.connect(ADDRESS)
+    SOCKET.connect(('pixelflut.jedevc.com', 1337))
     SOCKET = SOCKET.makefile('rw')
 
     x = 100
     y = 100
     color = "ff0000"
     print(f"PX {x} {y} {color}", file=SOCKET)
+
+    SOCKET.close()
 ```
 
 To draw the square, just run the program:
@@ -66,9 +67,8 @@ This should render a single square of size 100 by 100 at the co-ordinates `(50, 
 import socket
 
 if __name__ == "__main__":
-    ADDRESS = ('pixelflut.jedevc.com', 1337)
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.connect(ADDRESS)
+    SOCKET.connect(('pixelflut.jedevc.com', 1337))
     SOCKET = SOCKET.makefile('rw')
 
     x = 50
@@ -76,6 +76,8 @@ if __name__ == "__main__":
     for i in range(100):
         for j in range(100):
             print(f"PX {x + i} {y + j} ff0000", file=SOCKET)
+
+    SOCKET.close()
 ```
 
 To draw the square, run the program:
@@ -118,13 +120,14 @@ def paste_image(im, x, y):
             print(f'PX {x + i} {y + j} {color}', file=SOCKET)
 
 if __name__ == "__main__":
-    ADDRESS = ('pixelflut.jedevc.com', 1337)
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.connect(ADDRESS)
+    SOCKET.connect(('pixelflut.jedevc.com', 1337))
     SOCKET = SOCKET.makefile('rw')
 
     image = Image.open(sys.argv[1])
     paste_image(image, 0, 0)
+
+    SOCKET.close()
 ```
 
 To draw the image, run the program with an image file:
@@ -171,9 +174,8 @@ def paste_text(text):
     paste_image(bgim, 0, 0)
 
 if __name__ == "__main__":
-    ADDRESS = ('pixelflut.jedevc.com', 1337)
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.connect(ADDRESS)
+    SOCKET.connect(('pixelflut.jedevc.com', 1337))
     SOCKET = SOCKET.makefile('rw')
 
     while True:
@@ -182,6 +184,8 @@ if __name__ == "__main__":
 
         # time delay!
         time.sleep(1)
+
+    SOCKET.close()
 ```
 
 To continuously render the clock in the top-left corner of the screen, run the
@@ -218,9 +222,8 @@ def rect(x, y, width, height, color):
             print(f"PX {x + i} {y + j} {color}", file=SOCKET)
 
 if __name__ == "__main__":
-    ADDRESS = ('pixelflut.jedevc.com', 1337)
     SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.connect(ADDRESS)
+    SOCKET.connect(('pixelflut.jedevc.com', 1337))
     SOCKET = SOCKET.makefile('rw')
 
     # get a starting position
@@ -263,6 +266,8 @@ if __name__ == "__main__":
 
         # time delay!
         time.sleep(0.1)
+
+    SOCKET.close()
 ```
 
 To continuously render the worm and have it crawl across the screen, run the
