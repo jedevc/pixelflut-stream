@@ -9,20 +9,18 @@ FPS="30"
 unclutter -idle 0 &
 /pixelnuke &
 ffmpeg \
-    -f x11grab \
-    -i $DISPLAY \
-    -video_size $INRES \
-    -s $INRES \
-    -r $FPS \
+    -f lavfi -i anullsrc \
+    -f x11grab -video_size $INRES -s $INRES -r $FPS -i $DISPLAY \
     -f flv \
     -s $OUTRES \
-    -vcodec libx264 \
-    -keyint_min $FPS \
     -g $FPS \
+    -keyint_min $FPS \
+    -acodec aac -ar 44100 -b:a 128k \
+    -vcodec libx264 \
     -vprofile baseline \
     -pix_fmt yuv420p \
     -preset ultrafast -tune zerolatency \
-    -threads 0 \
     -strict experimental \
+    -threads 0 \
     "$RTMP"
 
