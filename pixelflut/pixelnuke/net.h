@@ -33,6 +33,6 @@ void net_err(NetClient *client, const char * msg);
 
 // Get or set the user attachment, a pointer to an arbitrary data structure or NULL
 void net_set_user(NetClient *client, void *user);
-void net_get_user(NetClient *client, void **user);
+void* net_get_user(NetClient *client);
 
 #endif /* NET_H_ */

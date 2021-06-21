@@ -242,7 +242,7 @@ void net_set_user(NetClient *client, void *user) {
 	client->user = user;
 }
 
-void net_get_user(NetClient *client, void **user) {
-	*user = client->user;
+void* net_get_user(NetClient *client) {
+	return client->user;
 }
 

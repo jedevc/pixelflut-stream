@@ -1,6 +1,7 @@
 #include "config.h"
 #include "net.h"
 #include "canvas.h"
+#include "rand.h"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -15,6 +16,9 @@ unsigned int px_clientcount = 0;
 typedef struct PxSession {
 
 } PxSession;
+
+void px_reset_session(PxSession *session) {
+}
 
 // Helper functions
 
@@ -57,10 +61,20 @@ static inline uint32_t fast_strtoul16(const char *str, const char **endptr) {
 
 // server callbacks
 void px_on_connect(NetClient *client) {
+	PxSession *session = malloc(sizeof(PxSession));
+	px_reset_session(session);
+	net_set_user(client, session);
+	if (session == NULL) {
+		perror("client malloc failed");
+	}
+
 	px_clientcount++;
 }
 
 void px_on_close(NetClient *client, int error) {
+	PxSession *session = net_get_user(client);
+	free(session);
+
 	px_clientcount--;
 }
 
@@ -188,6 +202,8 @@ int main(int argc, char **argv) {
 	config_init();
 	px_width = CONFIG_SCREEN_WIDTH;
 	px_height = CONFIG_SCREEN_HEIGHT;
+
+	rand_autoseed();
 
 	canvas_setcb_key(&px_on_key);
 	canvas_setcb_resize(&px_on_resize);
