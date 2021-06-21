@@ -14,11 +14,24 @@ unsigned int px_clientcount = 0;
 
 // User sessions
 typedef struct PxSession {
-
+	uint32_t x;
+	uint32_t y;
+	uint32_t c;
 } PxSession;
 
 void px_reset_session(PxSession *session) {
+	session->x = rand_range(0, px_width);
+	session->y = rand_range(0, px_height);
+	session->c = rand_range(0, 0xffffff) << 8 | 0xff;
 }
+
+static char *HELP_MESSAGE = "\
+LEFT/RIGHT: Move snake horizontally\n\
+UP/DOWN: Move snake vertically\n\
+COLOR rrggbb(aa): Set snake color (with optional alpha channel)\n\
+RESET: Randomly re-position and re-color snake\n\
+SIZE: Get canvas size\n\
+STATS: Return statistics";
 
 // Helper functions
 
@@ -79,44 +92,49 @@ void px_on_close(NetClient *client, int error) {
 }
 
 void px_on_read(NetClient *client, char *line) {
-	if (fast_str_startswith("PX ", line)) {
-		const char * ptr = line + 3;
+	PxSession *session = net_get_user(client);
+	if (line[0] == '\0') {
+		net_err(client, "No command provided");
+	} else if (fast_str_startswith("RESET", line)) {
+		px_reset_session(session);
+	} else if (fast_str_startswith("LEFT", line)) {
+		px_pixelcount++;
+		canvas_set_px(session->x, session->y, session->c);
+		if (session->x <= 0) {
+			session->x = px_width - 1;
+		} else {
+			session->x--;
+		}
+	} else if (fast_str_startswith("RIGHT", line)) {
+		px_pixelcount++;
+		canvas_set_px(session->x, session->y, session->c);
+		if (session->x >= px_width - 1) {
+			session->x = 0;
+		} else {
+			session->x++;
+		}
+	} else if (fast_str_startswith("UP", line)) {
+		px_pixelcount++;
+		canvas_set_px(session->x, session->y, session->c);
+		if (session->y <= 0) {
+			session->y = px_height - 1;
+		} else {
+			session->y--;
+		}
+	} else if (fast_str_startswith("DOWN", line)) {
+		px_pixelcount++;
+		canvas_set_px(session->x, session->y, session->c);
+		if (session->y >= px_height - 1) {
+			session->y = 0;
+		} else {
+			session->y++;
+		}
+	} else if (fast_str_startswith("COLOR ", line)) {
+		const char * ptr = line + 6;
 		const char * endptr = ptr;
 		errno = 0;
 
-		uint32_t x = fast_strtoul10(ptr, &endptr);
-		if (endptr == ptr) {
-			net_err(client,
-					"Invalid command (expected decimal as first parameter)");
-			return;
-		}
-		if (*endptr == '\0') {
-			net_err(client, "Invalid command (second parameter required)");
-			return;
-		}
-
-		endptr++; // eat space (or whatever non-decimal is found here)
-
-		uint32_t y = fast_strtoul10((ptr = endptr), &endptr);
-		if (endptr == ptr) {
-			net_err(client,
-					"Invalid command (expected decimal as second parameter)");
-			return;
-		}
-
-		// PX <x> <y> -> Get RGB color at position (x,y) or '0x000000' for out-of-range queries
-		if (*endptr == '\0') {
-			uint32_t c;
-			canvas_get_px(x, y, &c);
-			char str[64];
-			sprintf(str, "PX %u %u %06X", x, y, (c >> 8));
-			net_send(client, str);
-			return;
-		}
-
-		endptr++; // eat space (or whatever non-decimal is found here)
-
-		// PX <x> <y> BB|RRGGBB|RRGGBBAA
+		// COLOR BB|RRGGBB|RRGGBBAA
 		uint32_t c = fast_strtoul16((ptr = endptr), &endptr);
 		if (endptr == ptr) {
 			net_err(client,
@@ -138,35 +156,28 @@ void px_on_read(NetClient *client, char *line) {
 			return;
 		}
 
-		px_pixelcount++;
-		canvas_set_px(x, y, c);
-
+		session->c = c;
+	} else if (fast_str_startswith("INFO", line)) {
+		char str[64];
+		if ((session->c & 0xff) == 0xff) {
+			sprintf(str, "(%u, %u, %06x)", session->x, session->y, session->c >> 8);
+		} else {
+			sprintf(str, "(%u, %u, %08x)", session->x, session->y, session->c);
+		}
+		net_send(client, str);
 	} else if (fast_str_startswith("SIZE", line)) {
-
 		char str[64];
 		snprintf(str, 64, "SIZE %d %d", px_width, px_height);
 		net_send(client, str);
-
 	} else if (fast_str_startswith("STATS", line)) {
-
 		char str[128];
 		snprintf(str, 128, "STATS px:%u conn:%u", px_pixelcount,
 				px_clientcount);
 		net_send(client, str);
-
 	} else if (fast_str_startswith("HELP", line)) {
-
-		net_send(client,
-				"\
-PX x y: Get color at position (x,y)\n\
-PX x y rrggbb(aa): Draw a pixel (with optional alpha channel)\n\
-SIZE: Get canvas size\n\
-STATS: Return statistics");
-
+		net_send(client, HELP_MESSAGE);
 	} else {
-
 		net_err(client, "Unknown command");
-
 	}
 }
 
