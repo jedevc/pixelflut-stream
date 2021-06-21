@@ -5,7 +5,11 @@ type: docs
 
 # Introduction
 
-Welcome to Pixelflut! According to the [original author](https://github.com/defnull/pixelflut):
+Welcome to Pixelsnake! Pixelsnake is a mod of pixelflut, but instead of writing
+pixels to the screen, you just control a colored snake that leaves a trail
+behind it as it moves!
+
+From the [original author](https://github.com/defnull/pixelflut) of pixelflut:
 
 > Pixelflut is a very simple (and inefficient) ASCII based network protocol to
 > draw pixels on a screen. You can write a basic client in a single line of

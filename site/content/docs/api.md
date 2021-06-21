@@ -4,7 +4,7 @@ weight: 10
 
 # API
 
-The pixelflut server is accessed over a TCP socket.
+The pixelsnake server is accessed over a TCP socket.
 
 Using the linux command lines:
 
@@ -27,35 +27,65 @@ For example,
 
     $ nc stream.pixelflut.jedevc.com 1337
     HELP
-    PX x y: Get color at position (x,y)
-    PX x y rrggbb(aa): Draw a pixel (with optional alpha channel)
+    LEFT/RIGHT: Move snake horizontally
+    UP/DOWN: Move snake vertically
+    COLOR rrggbb(aa): Set snake color (with optional alpha channel)
+    RESET: Randomly re-position and re-color snake
     SIZE: Get canvas size
     STATS: Return statistics
 
-## Painting
+## Moving
 
-To paint a single pixel, use the `PX` command.
+To move, use the directional commands: `LEFT`, `RIGHT`, `UP` and `DOWN`.
 
 {{< hint info >}}
-`PX <x-coordinate> <y-coordinate> <hex-color>`
+`LEFT` / `RIGHT` / `UP` / `DOWN`
 
-Colors a single pixel at the provided co-ordinates.
+Colors a single pixel at the location *just* left.
 {{< /hint >}}
 
 For example,
 
     $ nc stream.pixelflut.jedevc.com 1337
-    PX 100 200 ff0000
+    RIGHT
+    DOWN
+    LEFT
+    UP
 
-This paints a single pure red pixel at `(100, 200)`.
+This paints a small square with the upper left corner at the randomly selected
+start position.
 
-You can also paint pixels with transparency:
+## Coloring
+
+By default, the snake's color is randomly selected; however, you can change
+this yourself.
+
+{{< hint info >}}
+`COLOR <hex-color>`
+
+Changes the snake's color.
+{{< /hint >}}
+
+For example, to change the snake color to pure red for all future movement:
 
     $ nc stream.pixelflut.jedevc.com 1337
-    PX 100 200 ff0000a0
+    COLOR ff0000
 
-This paints a single slightly-transparent red pixel at the same co-ordinates as
-above.
+You can also use colors with transparency:
+
+    $ nc stream.pixelflut.jedevc.com 1337
+    COLOR ff0000a0
+
+## Reset
+
+To abandon your old snake and create a new one, you can use the `RESET`
+command, avoiding needing to disconnect and reconnect to the server.
+
+{{< hint info >}}
+`RESET`
+
+Randomly reset the snake's position and color.
+{{< /hint >}}
 
 ## Statistics
 
@@ -63,16 +93,16 @@ You can also get data about the shared canvas which you can use to get
 information to inform your painting decisions automatically!
 
 {{< hint info >}}
-`PX <x-coordinate> <y-coordinate>`
+`INFO`
 
-Get the color of a single pixel at the provided co-ordinates.
+Get the state of the current snake, as a 3-tuple `(<x-position>, <y-position>, <color>)`.
 {{< /hint >}}
 
 For example,
 
     $ nc stream.pixelflut.jedevc.com 1337
-    PX 100 100
-    PX 100 100 FF0000
+    INFO
+    (238, 618, 8C85D3FF)
 
 {{< hint info >}}
 `SIZE`
