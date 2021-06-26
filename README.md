@@ -31,7 +31,7 @@ To run with a remote RTMP server:
     $ DOMAIN=mydomain.example \
       STREAM_URL=https://mydomain.example \
       RTMP_URL=rtmp://mystream.example/ \
-      ./composer remote up
+      ./composer external up
 
 Make sure to consult the relevant documentation for your livestreaming platform
 of choice to get the exact values of `RTMP_URL` (the RTMP address to use) and
