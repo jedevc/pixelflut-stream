@@ -10,6 +10,9 @@ Despite the fact there's a `docker-compose.yaml` file *don't* run it directly -
 bad things will happen, and nothing will work! Instead, use the `./composer`
 utility script as documented below.
 
+Before running either of the below, make a copy of `example.env` and modify the
+environment variables as desired.
+
 ### Local
 
 The simplest setup involves an entirely local RTMP server, which creates a
@@ -19,7 +22,7 @@ lucky enough to have your own CDN).
 
 To run with a local NGINX RTMP server:
 
-    $ DOMAIN=mydomain.com ./composer local up
+    $ ./composer local up
 
 ### Streaming service
 
@@ -28,10 +31,7 @@ to Twitch/YouTube/etc.
 
 To run with a remote RTMP server:
 
-    $ DOMAIN=mydomain.example \
-      STREAM_URL=https://mydomain.example \
-      RTMP_URL=rtmp://mystream.example/ \
-      ./composer external up
+    $ ./composer external up
 
 Make sure to consult the relevant documentation for your livestreaming platform
 of choice to get the exact values of `RTMP_URL` (the RTMP address to use) and

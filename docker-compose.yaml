@@ -25,9 +25,9 @@ services:
     restart: unless-stopped
     build: pixelflut/
     environment:
-      SCREEN_WIDTH: 800
-      SCREEN_HEIGHT: 600
-      TEXTURE_SIZE: 1024
+      SCREEN_WIDTH: ${SCREEN_WIDTH:-800}
+      SCREEN_HEIGHT: ${SCREEN_HEIGHT:-600}
+      TEXTURE_SIZE: ${SCREEN_TEXTURE_SIZE:-1024}
     ports:
       - "1337:1337"
     networks:
